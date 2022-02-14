@@ -1,5 +1,6 @@
-name: DruxtJS
-description: A bridge between frameworks, Drupal in the back, Nuxt.js in the front.
+name: Druxt
+description: DruxtJS; A bridge between frameworks, Drupal in the back, Nuxt.js in the front.
+package: Web services
 
 type: module
 core_version_requirement: ^8.8 || ^9
