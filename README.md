@@ -13,7 +13,7 @@
 - Condition plugin bypass for Block resources.
 - Enables Cross-Origin Resource Sharing (CORS) support.
 - Ensures EntityViewDisplay configuration available for [DruxtSchema](https://schema.druxtjs.org) module.
-
+- Node Preview submodule with support for view modes and multiple preview frontends via the [JSON:API Node Preview](https://www.drupal.org/project/jsonapi_node_preview) module.
 
 ## Installation
 
