@@ -119,7 +119,7 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
         [],
         [
           'absolute' => TRUE,
-          'language' => $langcode,
+          'language' => $this->languageManager->getLanguage($langcode),
         ]
       )->toString(TRUE);
       $route_name = sprintf('jsonapi.%s.individual', $type_name);
@@ -130,7 +130,7 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
         ],
         [
           'absolute' => TRUE,
-          'language' => $langcode,
+          'language' => $this->languageManager->getLanguage($langcode),
         ]
       )->toString(TRUE);
       $response->addCacheableDependency($entry_point_url);
