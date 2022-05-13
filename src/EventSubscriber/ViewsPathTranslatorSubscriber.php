@@ -27,6 +27,7 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
   #[\Override]
   public function onPathTranslation(PathTranslatorEvent $event): void {
     $response = $event->getResponse();
+    // @todo jsonapi_views is dependency in druxt.info.yml, it is always enabled, can't we eleminate this check?
     if (!$this->moduleHandler->moduleExists('jsonapi_views')) {
       return;
     }
@@ -49,9 +50,11 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
           'resolved' => $path,
         ]);
       }
+      // @todo shouldn't there be an else { $response->setStatusCode(404)?
       return;
     }
     catch (MethodNotAllowedException) {
+      // @todo Shouldn't this be a 405 not a 403?
       $response->setStatusCode(403);
       return;
     }
@@ -80,6 +83,7 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
       (new CacheableMetadata())->setCacheContexts(['url.path.is_front'])
     );
 
+    // Determine langcode.
     $langcode = NULL;
     if ($this->languageManager->isMultilingual()) {
       $destination = parse_url($event->getPath(), PHP_URL_PATH);
