@@ -25,7 +25,7 @@ class NodePreviewController extends CoreNodePreviewController {
 
     // Get the JSON:API Node Preview URL.
     $jsonapi_node_preview = Url::fromRoute(
-      'jsonapi.node--article.individual.preview',
+      "jsonapi.node--{$node_preview->bundle()}.individual.preview",
       ['node_preview' => $node_preview->uuid()],
       ['absolute' => TRUE]
     )->toString();
