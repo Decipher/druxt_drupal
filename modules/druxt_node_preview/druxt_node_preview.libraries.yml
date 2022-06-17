@@ -1,4 +1,9 @@
-preview:
+druxt.node_preview:
+  js:
+    js/node_preview.js: {}
   css:
     theme:
-      css/preview.css: {}
+      css/node_preview.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
