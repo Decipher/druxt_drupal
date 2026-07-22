@@ -65,8 +65,13 @@ class ViewsPathTranslatorSubscriber extends RouterPathTranslatorSubscriber {
     $executable = Views::executableFactory()->get($view);
     $executable->setDisplay($match_info['display_id']);
 
+    $route = $match_info[RouteObjectInterface::ROUTE_OBJECT];
     $route_name = $match_info[RouteObjectInterface::ROUTE_NAME];
-    $resolved_url = Url::fromRoute($route_name, [], ['absolute' => TRUE])->toString(TRUE);
+    $route_parameters = array_intersect_key(
+      $match_info,
+      array_flip($route->compile()->getPathVariables())
+    );
+    $resolved_url = Url::fromRoute($route_name, $route_parameters, ['absolute' => TRUE])->toString(TRUE);
     $response->addCacheableDependency($resolved_url);
 
     $is_home_path = $this->resolvedPathIsHomePath($resolved_url->getGeneratedUrl());

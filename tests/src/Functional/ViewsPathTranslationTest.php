@@ -79,7 +79,7 @@ class ViewsPathTranslationTest extends BrowserTestBase {
           'display_title' => 'Page',
           'position' => 1,
           'display_options' => [
-            'path' => '/druxt-test-view',
+            'path' => 'druxt-test-view',
           ],
         ],
       ],
