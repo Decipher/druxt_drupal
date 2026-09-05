@@ -10,6 +10,12 @@ Versions are the project's git tags. Some are tag only and have no
 
 ## [Unreleased]
 
+### Added
+
+- Language of a prefixed path in the Views Decoupled Router integration, as
+  `view.langcode` and in the generated URLs
+  ([#3273228](https://www.drupal.org/i/3273228)).
+
 ## [1.2.2] - 2026-09-05
 
 ### Added
