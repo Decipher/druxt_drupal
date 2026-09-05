@@ -84,6 +84,32 @@ resources required by the DruxtJS frontend.
 - Ensures EntityViewDisplay configuration available for [DruxtSchema](https://schema.druxtjs.org) module.
 
 
+## Multilingual
+
+On a multilingual site, a Views path translation reads the language from the
+prefix on the requested path. The response reports it as `view.langcode`, and
+the `resolved`, `jsonapi` and `jsonapi_views` URLs are generated in that
+language:
+
+```json
+{
+  "resolved": "https://example.com/es/recipes",
+  "view": {
+    "view_id": "recipes",
+    "display_id": "page_1",
+    "langcode": "es"
+  }
+}
+```
+
+A path with no prefix resolves in the site default language, and `langcode`
+reports that language rather than being omitted.
+
+Resolving a language-prefixed path requires Decoupled Router to route it. Until
+[#3111456](https://www.drupal.org/i/3111456) lands, a prefixed path does not
+reach this subscriber.
+
+
 ## Maintainers
 
 - Stuart Clark - [Deciphered](https://www.drupal.org/u/deciphered)
