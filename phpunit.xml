@@ -120,7 +120,6 @@
             <directory>web/modules/custom/*/tests</directory>
             <directory>web/themes/custom/*/tests</directory>
             <file>web/modules/custom/druxt/rector.php</file>
-            <file>web/modules/custom/druxt/druxt.api.php</file>
             <file>web/themes/custom/druxt/rector.php</file>
             <directory>**/node_modules/**</directory>
         </exclude>

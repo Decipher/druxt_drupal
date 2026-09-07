@@ -96,6 +96,16 @@ class DruxtResourceValidationKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that an empty entry validates.
+   *
+   * It names no entity type, so it grants nothing. Refusing it would block
+   * an import over a value that does nothing.
+   */
+  public function testEmptyResourceValidates(): void {
+    $this->assertSame(0, $this->violations(['']));
+  }
+
+  /**
    * Tests that the shipped default validates.
    */
   public function testShippedDefaultValidates(): void {
