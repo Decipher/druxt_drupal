@@ -92,6 +92,10 @@ Druxt exposes a fixed set of JSON:API resources to anyone holding the
 Configuration > Web services > Druxt, or at
 `/admin/config/services/druxt`.
 
+Editing the list needs the "administer druxt" permission, which is separate:
+"access druxt resources" controls what a frontend may read at runtime and
+does not grant access to the settings page.
+
 Only configuration entities are offered. Everything on the list is readable
 by everyone holding the permission, and there is no way to scope it to a
 role or a consumer, so a content entity type would expose every entity of

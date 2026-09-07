@@ -66,6 +66,30 @@ function druxt_resource_is_allowed(string $resource): bool {
 }
 
 /**
+ * Checks whether a stored resource may still be granted.
+ *
+ * Wider than druxt_resource_is_allowed(), and deliberately so. The form must
+ * not offer a resource this site cannot serve, but configuration must be
+ * able to name one, because a site sharing configuration with another may
+ * not have the module that provides it. An entity type that is not installed
+ * grants nothing, since no route exists for it.
+ *
+ * @param string $resource
+ *   A resource type id, as it appears in a JSON:API route.
+ *
+ * @return bool
+ *   TRUE when the resource may be stored and granted.
+ */
+function druxt_resource_is_permitted(string $resource): bool {
+  [$entity_type_id] = explode('--', $resource, 2);
+  if (!isset(\Drupal::entityTypeManager()->getDefinitions()[$entity_type_id])) {
+    return TRUE;
+  }
+
+  return druxt_resource_is_allowed($resource);
+}
+
+/**
  * Gets the JSON:API resources DruxtJS exposes by default.
  *
  * Shipped as druxt.settings in config/install. Kept here as well so a site
@@ -105,7 +129,18 @@ function druxt_default_resources(): array {
 function druxt_resources(): array {
   $resources = \Drupal::config('druxt.settings')->get('resources');
   $resources ??= druxt_default_resources();
+
+  // Recheck rather than trust what is stored. Configuration can hold a
+  // resource that is not safe to grant: written before this validation
+  // existed, or naming an entity type that has appeared since. Validation
+  // on import cannot catch either. The stored value is left alone, so a
+  // site sharing configuration keeps entries for modules it lacks.
+  $resources = array_values(array_filter($resources, druxt_resource_is_permitted(...)));
+
+  // After the recheck, so a module can still expose what configuration may
+  // not. A change here is reviewable code rather than a checkbox.
   \Drupal::moduleHandler()->alter('druxt_resources', $resources);
+
   return array_values($resources);
 }
 

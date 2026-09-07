@@ -48,7 +48,7 @@ class DruxtSettingsForm extends ConfigFormBase {
    */
   #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $configured = druxt_resources();
+    $configured = $this->storedResources();
     $options = $this->resourceOptions();
 
     $form['resources'] = [
@@ -74,7 +74,7 @@ class DruxtSettingsForm extends ConfigFormBase {
     // the form, so keep it rather than dropping it on save. Otherwise saving
     // on a site without Views would quietly remove view--view for every site
     // sharing the configuration.
-    $absent = array_values(array_diff(druxt_resources(), $offered));
+    $absent = array_values(array_diff($this->storedResources(), $offered));
 
     $resources = array_values(array_unique(array_merge($chosen, $absent)));
     sort($resources);
@@ -92,6 +92,20 @@ class DruxtSettingsForm extends ConfigFormBase {
     }
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Gets the resource list as it is stored.
+   *
+   * Not druxt_resources(), which rechecks the list and applies
+   * hook_druxt_resources_alter(). Saving that would persist what a module
+   * added in code, and delete what a module removed.
+   *
+   * @return string[]
+   *   Resource type ids, as configuration holds them.
+   */
+  protected function storedResources(): array {
+    return $this->config('druxt.settings')->get('resources') ?? druxt_default_resources();
   }
 
   /**

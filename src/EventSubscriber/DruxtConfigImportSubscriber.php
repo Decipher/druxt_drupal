@@ -6,6 +6,7 @@ namespace Drupal\druxt\EventSubscriber;
 
 use Drupal\Core\Config\ConfigEvents;
 use Drupal\Core\Config\ConfigImporterEvent;
+use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -52,28 +53,39 @@ class DruxtConfigImportSubscriber implements EventSubscriberInterface {
    */
   public function onConfigImportValidate(ConfigImporterEvent $event): void {
     $importer = $event->getConfigImporter();
+    $comparer = $importer->getStorageComparer();
 
-    foreach (['create', 'update'] as $op) {
-      if (!in_array(self::CONFIG_NAME, $importer->getUnprocessedConfiguration($op), TRUE)) {
-        continue;
-      }
+    // Every collection, not just the default one. A language collection
+    // holds configuration overrides, so druxt.settings in language.es would
+    // otherwise reach a site without being checked.
+    foreach ($comparer->getAllCollectionNames() as $collection) {
+      foreach (['create', 'update'] as $op) {
+        if (!in_array(self::CONFIG_NAME, $importer->getUnprocessedConfiguration($op, $collection), TRUE)) {
+          continue;
+        }
 
-      $data = $importer->getStorageComparer()
-        ->getSourceStorage()
-        ->read(self::CONFIG_NAME);
-      if (!is_array($data)) {
-        continue;
-      }
+        $data = $comparer->getSourceStorage($collection)->read(self::CONFIG_NAME);
+        if (!is_array($data)) {
+          continue;
+        }
 
-      $violations = $this->typedConfigManager
-        ->createFromNameAndData(self::CONFIG_NAME, $data)
-        ->validate();
+        $violations = $this->typedConfigManager
+          ->createFromNameAndData(self::CONFIG_NAME, $data)
+          ->validate();
 
-      foreach ($violations as $violation) {
-        $importer->logError((string) $this->t('@config: @message', [
-          '@config' => self::CONFIG_NAME,
-          '@message' => strip_tags((string) $violation->getMessage()),
-        ]));
+        // The default collection is named by the empty string, which reads
+        // as a missing word in an error a deploy job prints.
+        $label = $collection === StorageInterface::DEFAULT_COLLECTION
+          ? $this->t('the default collection')
+          : $collection;
+
+        foreach ($violations as $violation) {
+          $importer->logError((string) $this->t('@config in @collection: @message', [
+            '@config' => self::CONFIG_NAME,
+            '@collection' => $label,
+            '@message' => strip_tags((string) $violation->getMessage()),
+          ]));
+        }
       }
     }
   }
