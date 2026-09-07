@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\druxt\Kernel;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\system\Entity\Menu;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -222,6 +224,23 @@ class DruxtResourcesKernelTest extends KernelTestBase {
     // chooses it.
     $this->assertNotContains('editor--editor', $resources);
     $this->assertCount(12, $resources);
+  }
+
+  /**
+   * Tests that an access answer records where it was read from.
+   *
+   * The answer comes from the resource list, which is now configuration a
+   * user can change. Without the dependency, a cached response keeps
+   * whatever the list said when it was written: ticking a resource has no
+   * visible effect until the caches are rebuilt.
+   */
+  public function testEntityAccessDependsOnTheSettings(): void {
+    $menu = Menu::create(['id' => 'test', 'label' => 'Test']);
+    $account = $this->createMock(AccountInterface::class);
+
+    $result = druxt_entity_access($menu, 'view', $account);
+
+    $this->assertContains('config:druxt.settings', $result->getCacheTags());
   }
 
 }

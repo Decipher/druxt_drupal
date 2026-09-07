@@ -177,7 +177,12 @@ function druxt_access_check(AccountInterface $account) {
  * Implements hook_entity_access().
  */
 function druxt_entity_access(EntityInterface $entity, string $operation, AccountInterface $account) {
-  return druxt_access_check($account) ? AccessResult::allowed() : AccessResult::neutral();
+  $access = druxt_access_check($account) ? AccessResult::allowed() : AccessResult::neutral();
+
+  // The answer was read from the resource list, so anything that caches it
+  // has to be invalidated when that list changes. While the list was
+  // hardcoded there was nothing to depend on.
+  return $access->addCacheableDependency(\Drupal::config('druxt.settings'));
 }
 
 /**
@@ -200,7 +205,8 @@ function druxt_jsonapi_entity_filter_access(EntityTypeInterface $entity_type, Ac
 
   $jsonapi_filter = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn(): string => JsonApiFilter::AMONG_ALL, fn() => JSONAPI_FILTER_AMONG_ALL);
   return [
-    $jsonapi_filter => AccessResult::allowed(),
+    $jsonapi_filter => AccessResult::allowed()
+      ->addCacheableDependency(\Drupal::config('druxt.settings')),
   ];
 }
 
