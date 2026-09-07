@@ -105,6 +105,40 @@ class DruxtResourcesKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that a resource stored in configuration is rechecked at runtime.
+   *
+   * Configuration can hold a resource that is not safe to grant: written
+   * before this validation existed, or for an entity type that has appeared
+   * since the value was stored. Validation on import cannot catch either,
+   * so the access check has to recheck rather than trust what it reads.
+   */
+  public function testStoredContentEntityResourceIsNotGranted(): void {
+    // Write past validation, the way an older release or a direct
+    // Config::save() would have.
+    \Drupal::configFactory()->getEditable('druxt.settings')
+      ->set('resources', ['view--view', 'user--user'])
+      ->save();
+
+    $resources = druxt_resources();
+
+    $this->assertContains('view--view', $resources);
+    $this->assertNotContains('user--user', $resources);
+  }
+
+  /**
+   * Tests that the recheck runs before the alter hook, not after.
+   *
+   * A module may expose a content entity deliberately, because a change in
+   * code is reviewable. Filtering after the hook would take that away.
+   */
+  public function testAlterHookStillAddsWhatConfigurationCannot(): void {
+    \Drupal::service('module_installer')->install(['druxt_resources_test']);
+
+    // The test module adds user--user, which configuration may not.
+    $this->assertContains('user--user', druxt_resources());
+  }
+
+  /**
    * Tests that a module may alter the resource list in code.
    */
   public function testAlterHookAddsAndRemoves(): void {
