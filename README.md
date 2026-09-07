@@ -92,11 +92,16 @@ Druxt exposes a fixed set of JSON:API resources to anyone holding the
 Configuration > Web services > Druxt, or at
 `/admin/config/services/druxt`.
 
-Only configuration entities are offered. A checked resource is readable
-whatever the site would otherwise allow, and configuration carries no
-per-entity access, no personal data and no unpublished state, which is what
-makes that safe. Content entities are not offered, because exposing one
-would publish every entity of that type to anyone with the permission.
+Only configuration entities are offered. Everything on the list is readable
+by everyone holding the permission, and there is no way to scope it to a
+role or a consumer, so a content entity type would expose every entity of
+that type including unpublished ones. Configuration carries no per-entity
+access and no unpublished state, so a list-wide grant costs little.
+
+`menu_link_content` is the exception. It is a content entity and it shipped
+in the list this configuration replaced, so removing it would break existing
+sites. It is accepted on impact, a disabled menu link being low risk, rather
+than because the rule does not apply to it.
 
 A worked example is `editor--editor`. A frontend that builds its editor
 toolbar from the text format's own configuration has to read it, and no

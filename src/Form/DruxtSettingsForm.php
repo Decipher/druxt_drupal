@@ -56,7 +56,7 @@ class DruxtSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Exposed resources'),
       '#options' => $options,
       '#default_value' => array_values(array_intersect($configured, array_keys($options))),
-      '#description' => $this->t('A checked resource is readable by anyone with the "access druxt resources" permission, whatever the site would otherwise allow. Unchecking one can stop a frontend rendering. Only configuration is listed here; a module can expose anything else with hook_druxt_resources_alter().'),
+      '#description' => $this->t('A checked resource is readable by anyone with the "access druxt resources" permission, whatever the site would otherwise allow, and cannot be scoped to a role or a consumer. Unchecking one can stop a frontend rendering. Only configuration is listed here; a module can expose anything else with hook_druxt_resources_alter().'),
     ];
 
     return parent::buildForm($form, $form_state);

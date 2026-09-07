@@ -24,11 +24,12 @@ declare(strict_types=1);
  *
  * Use this hook when a module knows which resource it needs, so a site
  * builder does not have to find the setting and tick a box. The settings
- * form offers configuration entities only, because those carry no
- * per-entity access, no personal data and no unpublished state. This hook
- * has no such limit, since a change here is reviewable code rather than a
- * checkbox: adding a content entity exposes every one of them to anyone
- * holding the permission, which is commonly granted to anonymous.
+ * form offers configuration entities only, because the list is granted to
+ * everyone holding the permission with no way to scope it to a role or a
+ * consumer. This hook has no such limit, since a change here is reviewable
+ * code rather than a checkbox: adding a content entity type exposes every
+ * entity of that type to anyone holding the permission, which is commonly
+ * granted to anonymous.
  *
  * @param string[] $resources
  *   Resource type ids, as they appear in a JSON:API route, in the form

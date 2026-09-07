@@ -8,3 +8,5 @@ druxt.settings:
       sequence:
         type: string
         label: 'Resource type id'
+        constraints:
+          DruxtResource: ~
