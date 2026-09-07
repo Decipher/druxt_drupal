@@ -11,11 +11,98 @@ use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\jsonapi\JsonApiFilter;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonapi\Routing\Routes;
+
+/**
+ * Resources that predate the config-entity rule and stay allowed.
+ *
+ * menu_link_content shipped in the hardcoded list this configuration
+ * replaced. Refusing it now would break a site on update, so it is
+ * grandfathered rather than treated as precedent for content entities.
+ */
+const DRUXT_GRANDFATHERED_RESOURCES = [
+  'menu_link_content--menu_link_content',
+];
+
+/**
+ * Checks whether a resource may be added to the exposed list.
+ *
+ * Being on the list grants a blanket entity access result and unrestricted
+ * filtering for the request, so it is limited to configuration entities.
+ * Those carry no per-entity access, no personal data and no publishing
+ * state, which is what makes a blanket grant defensible. A module may still
+ * add anything through hook_druxt_resources_alter(), where the change is
+ * reviewable code rather than a checkbox.
+ *
+ * @param string $resource
+ *   A resource type id, as it appears in a JSON:API route.
+ *
+ * @return bool
+ *   TRUE when the resource may be configured.
+ */
+function druxt_resource_is_allowed(string $resource): bool {
+  if (in_array($resource, DRUXT_GRANDFATHERED_RESOURCES, TRUE)) {
+    return TRUE;
+  }
+
+  [$entity_type_id] = explode('--', $resource, 2);
+  $definitions = \Drupal::entityTypeManager()->getDefinitions();
+  if (!isset($definitions[$entity_type_id])) {
+    return FALSE;
+  }
+
+  return $definitions[$entity_type_id]->entityClassImplements(ConfigEntityInterface::class);
+}
+
+/**
+ * Gets the JSON:API resources DruxtJS exposes by default.
+ *
+ * Shipped as druxt.settings in config/install. Kept here as well so a site
+ * that has not run the update hook yet still serves its frontend, and so the
+ * access check has an answer before the module is configured.
+ *
+ * @return string[]
+ *   Resource type ids, as they appear in a JSON:API route.
+ */
+function druxt_default_resources(): array {
+  return [
+    'block--block',
+    'configurable_language--configurable_language',
+    'editor--editor',
+    'entity_form_display--entity_form_display',
+    'entity_form_mode--entity_form_mode',
+    'entity_view_display--entity_view_display',
+    'entity_view_mode--entity_view_mode',
+    'field_config--field_config',
+    'field_storage_config--field_storage_config',
+    'jsonapi_resource_config--jsonapi_resource_config',
+    'menu--menu',
+    'menu_link_content--menu_link_content',
+    'view--view',
+  ];
+}
+
+/**
+ * Gets the JSON:API resources DruxtJS exposes.
+ *
+ * An absent value falls back to the defaults, because a site updating from a
+ * release that hardcoded the list has no configuration yet. An empty list is
+ * a deliberate choice and is returned as it stands.
+ *
+ * @return string[]
+ *   Resource type ids, as they appear in a JSON:API route.
+ */
+function druxt_resources(): array {
+  $resources = \Drupal::config('druxt.settings')->get('resources');
+  $resources = $resources ?? druxt_default_resources();
+  \Drupal::moduleHandler()->alter('druxt_resources', $resources);
+  return array_values($resources);
+}
 
 /**
  * Checks for Druxt route access.
@@ -34,21 +121,7 @@ function druxt_access_check(AccountInterface $account) {
   }
 
   // Is the JSON API resource a Druxt resource?
-  $resources = [
-    'block--block',
-    'configurable_language--configurable_language',
-    'entity_form_display--entity_form_display',
-    'entity_form_mode--entity_form_mode',
-    'entity_view_display--entity_view_display',
-    'entity_view_mode--entity_view_mode',
-    'field_config--field_config',
-    'field_storage_config--field_storage_config',
-    'jsonapi_resource_config--jsonapi_resource_config',
-    'menu--menu',
-    'menu_link_content--menu_link_content',
-    'view--view',
-  ];
-  if (!in_array($defaults['resource_type'], $resources)) {
+  if (!in_array($defaults['resource_type'], druxt_resources())) {
     return FALSE;
   }
 
