@@ -51,7 +51,7 @@ class DruxtResourcesKernelTest extends KernelTestBase {
   /**
    * Tests that the status report checks the resources access actually grants.
    *
-   * druxt.install carried its own hardcoded list of ten, which had already
+   * Druxt.install carried its own hardcoded list of ten, which had already
    * drifted from the twelve the access check used: it omitted
    * configurable_language and jsonapi_resource_config. Both now read the
    * same source, so the report cannot describe a set nobody is granted.
@@ -89,7 +89,7 @@ class DruxtResourcesKernelTest extends KernelTestBase {
   /**
    * Tests that the one pre-existing content resource stays allowed.
    *
-   * menu_link_content shipped in the hardcoded list, so refusing it would
+   * Menu_link_content shipped in the hardcoded list, so refusing it would
    * break sites on update. It is grandfathered rather than treated as
    * precedent for the category.
    */
@@ -182,9 +182,12 @@ class DruxtResourcesKernelTest extends KernelTestBase {
     $this->assertContains('menu_link_content--menu_link_content', $resources);
     $this->assertContains('view--view', $resources);
 
-    // Added as a default: a frontend that renders a text format's toolbar
-    // reads this, and no permission short of administering filters gave it.
-    $this->assertContains('editor--editor', $resources);
+    // Nothing is added to the default. Making the list configurable must not
+    // change what an existing site exposes. A site that wants more, such as
+    // editor--editor for a frontend that renders a text format's toolbar,
+    // chooses it.
+    $this->assertNotContains('editor--editor', $resources);
+    $this->assertCount(12, $resources);
   }
 
 }

@@ -63,9 +63,12 @@ class DruxtSettingsFormTest extends BrowserTestBase {
     $this->drupalLogin($this->drupalCreateUser(['administer druxt']));
     $this->drupalGet(self::PATH);
 
-    // A config resource the frontend needs is offered and ticked.
+    // A config resource a site may want is offered, but not chosen for it.
     $this->assertSession()->fieldExists('resources[editor--editor]');
-    $this->assertSession()->checkboxChecked('resources[editor--editor]');
+    $this->assertSession()->checkboxNotChecked('resources[editor--editor]');
+
+    // One that ships enabled stays ticked.
+    $this->assertSession()->checkboxChecked('resources[view--view]');
 
     // A content resource is not offered at all. Being on the list grants a
     // blanket entity access result, so this one would publish every
@@ -78,18 +81,41 @@ class DruxtSettingsFormTest extends BrowserTestBase {
   }
 
   /**
-   * Tests that unticking a resource is saved and takes effect.
+   * Tests that unchecking a resource is saved and takes effect.
    */
   public function testSavingUpdatesTheResourceList(): void {
     $this->drupalLogin($this->drupalCreateUser(['administer druxt']));
     $this->drupalGet(self::PATH);
 
-    $this->submitForm(['resources[editor--editor]' => FALSE], 'Save configuration');
+    $this->submitForm(['resources[editor--editor]' => TRUE], 'Save configuration');
     $this->assertSession()->statusCodeEquals(200);
 
     $resources = $this->config('druxt.settings')->get('resources');
-    $this->assertNotContains('editor--editor', $resources);
+    $this->assertContains('editor--editor', $resources);
     $this->assertContains('view--view', $resources);
+  }
+
+  /**
+   * Tests that saving keeps resources the form cannot offer.
+   *
+   * A resource belonging to a module this site does not have is not on the
+   * form. Saving must not drop it, or a site without that module would
+   * quietly delete the entry for every site sharing the configuration.
+   */
+  public function testSavingKeepsResourcesNotOnTheForm(): void {
+    $this->config('druxt.settings')
+      ->set('resources', array_merge(druxt_default_resources(), ['comment_type--comment_type']))
+      ->save();
+
+    $this->drupalLogin($this->drupalCreateUser(['administer druxt']));
+    $this->drupalGet(self::PATH);
+
+    // The comment module is not installed, so the resource cannot be offered.
+    $this->assertSession()->fieldNotExists('resources[comment_type--comment_type]');
+
+    $this->submitForm([], 'Save configuration');
+
+    $this->assertContains('comment_type--comment_type', $this->config('druxt.settings')->get('resources'));
   }
 
 }

@@ -113,3 +113,10 @@ function druxt_requirements(string $phase): array {
 function druxt_update_9000(): void {
   druxt_ensure_entity_view_displays();
 }
+
+/**
+ * Move the exposed resource list into configuration.
+ */
+function druxt_update_10301(): void {
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'druxt');
+}

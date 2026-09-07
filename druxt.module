@@ -19,15 +19,21 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\jsonapi\Routing\Routes;
 
 /**
- * Resources that predate the config-entity rule and stay allowed.
+ * Gets the resources that predate the configuration entity rule.
  *
- * menu_link_content shipped in the hardcoded list this configuration
- * replaced. Refusing it now would break a site on update, so it is
- * grandfathered rather than treated as precedent for content entities.
+ * The menu_link_content resource shipped in the hardcoded list this
+ * configuration replaced. Refusing it now would break a site on update, so
+ * it is grandfathered rather than treated as precedent for content
+ * entities.
+ *
+ * @return string[]
+ *   Resource type ids that stay allowed whatever their entity type.
  */
-const DRUXT_GRANDFATHERED_RESOURCES = [
-  'menu_link_content--menu_link_content',
-];
+function druxt_grandfathered_resources(): array {
+  return [
+    'menu_link_content--menu_link_content',
+  ];
+}
 
 /**
  * Checks whether a resource may be added to the exposed list.
@@ -46,7 +52,7 @@ const DRUXT_GRANDFATHERED_RESOURCES = [
  *   TRUE when the resource may be configured.
  */
 function druxt_resource_is_allowed(string $resource): bool {
-  if (in_array($resource, DRUXT_GRANDFATHERED_RESOURCES, TRUE)) {
+  if (in_array($resource, druxt_grandfathered_resources(), TRUE)) {
     return TRUE;
   }
 
@@ -73,7 +79,6 @@ function druxt_default_resources(): array {
   return [
     'block--block',
     'configurable_language--configurable_language',
-    'editor--editor',
     'entity_form_display--entity_form_display',
     'entity_form_mode--entity_form_mode',
     'entity_view_display--entity_view_display',
@@ -99,7 +104,7 @@ function druxt_default_resources(): array {
  */
 function druxt_resources(): array {
   $resources = \Drupal::config('druxt.settings')->get('resources');
-  $resources = $resources ?? druxt_default_resources();
+  $resources ??= druxt_default_resources();
   \Drupal::moduleHandler()->alter('druxt_resources', $resources);
   return array_values($resources);
 }

@@ -1,7 +1,6 @@
 resources:
   - block--block
   - configurable_language--configurable_language
-  - editor--editor
   - entity_form_display--entity_form_display
   - entity_form_mode--entity_form_mode
   - entity_view_display--entity_view_display
