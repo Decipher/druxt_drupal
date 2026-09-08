@@ -19,6 +19,7 @@ Submit bug reports and feature suggestions, or track changes in the
 - Installation
 - Configuration
 - Features
+- Cross-Origin Resource Sharing
 - Maintainers
 
 
@@ -82,6 +83,63 @@ resources required by the DruxtJS frontend.
 - Condition plugin bypass for Block resources.
 - Enables Cross-Origin Resource Sharing (CORS) support.
 - Ensures EntityViewDisplay configuration available for [DruxtSchema](https://schema.druxtjs.org) module.
+
+## Cross-Origin Resource Sharing
+
+A decoupled frontend runs on a different origin to Drupal, so the browser
+will not read a response unless Drupal says the origin is allowed. Core ships
+CORS turned off, so Druxt turns it on.
+
+Druxt only does this when the site has not configured CORS itself. If
+`cors.config.enabled` is `TRUE` in `sites/default/services.yml`, Druxt changes
+nothing and the site's own values stand.
+
+Where Druxt does apply, it fills in the three values core leaves empty:
+
+| Setting | Druxt default |
+| --- | --- |
+| `enabled` | `TRUE` |
+| `allowedOrigins` | core's default, `['*']` |
+| `allowedHeaders` | `['*']` |
+| `allowedMethods` | `['*']` |
+
+`allowedMethods` matters more than it looks. A browser sends a preflight for any request
+that is not a simple one, which means every write, and every read carrying an
+`Authorization` header. Preflight asks whether the method is allowed, and an
+empty list answers no, so the request never happens. A site with the list
+empty works for anonymous reads and fails for everything else.
+
+These defaults let any origin call the site. That is the right default for
+getting a frontend talking to Drupal, and the wrong one for production. Set
+`cors.config` in `sites/default/services.yml` to narrow it:
+
+```yaml
+parameters:
+  cors.config:
+    enabled: true
+    allowedHeaders: ['authorization', 'content-type']
+    allowedMethods: ['GET', 'POST', 'PATCH', 'DELETE']
+    allowedOrigins: ['https://frontend.example.com']
+    supportsCredentials: true
+```
+
+Setting `enabled: true` takes the whole thing out of Druxt's hands, so every
+value above is then yours to maintain.
+
+### Upgrading
+
+There is nothing to migrate. The defaults are applied to the service
+container when it is built, not stored in configuration, so no update hook
+touches them and nothing you have saved changes.
+
+They do need the container rebuilt to take effect, which the 1.3.0 update
+does anyway: `druxt_update_10301()` means `drush updatedb` or `update.php`
+has to run, and that rebuilds the container.
+
+One case is not fixed by upgrading. A site that already set
+`cors.config.enabled: true` with an empty `allowedMethods` is skipped by
+Druxt, before and after, so its preflighted requests keep failing. Add
+`allowedMethods` to that site's own `services.yml`.
 
 
 ## Maintainers
