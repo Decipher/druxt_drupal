@@ -18,6 +18,7 @@ Submit bug reports and feature suggestions, or track changes in the
 - Requirements
 - Installation
 - Configuration
+- Granting the permission
 - Features
 - Cross-Origin Resource Sharing
 - Exposing additional resources
@@ -74,6 +75,57 @@ Once installed, DruxtJS requires no additional configuration. The "**access
 druxt resources**" permission provides read-only access to all JSON:API
 resources required by the DruxtJS frontend.
 
+
+## Granting the permission
+
+Installing Druxt grants "**access druxt resources**" to nobody. Not anonymous,
+not authenticated, not any custom role. Until a role holds it, the resources
+Druxt exposes stay unreadable, and the way they refuse is easy to misread.
+
+A collection answers `200` with an empty `data` array and a `meta.omitted`
+block. The block is a real breadcrumb, but it names the wrong permission:
+
+```json
+{
+  "data": [],
+  "meta": {
+    "omitted": {
+      "detail": "Some resources have been omitted because of insufficient authorization.",
+      "links": {
+        "item--VfvAyM2": {
+          "meta": {
+            "detail": "The current user is not allowed to GET the selected resource. The 'administer views' permission is required."
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+JSON:API reports the permission core would have wanted, `administer views` or
+`administer blocks`, because that is the check Druxt's grant is there to
+satisfy. Nothing in the response names "access druxt resources", so following
+the message leads to granting an administrative permission to anonymous rather
+than the read-only one.
+
+The symptom is usually partial rather than total. Anything readable without
+Druxt's grant still comes through, so a frontend build ends up missing some
+routes and rendering the rest, which reads as a content problem rather than an
+access one.
+
+On a new site the permission was never granted in the first place. On a site
+that used to work, the cause is usually an uninstall and reinstall: Drupal
+strips a module's permissions from every role on uninstall and does not restore
+them on reinstall, so yesterday's working site serves empty collections today
+with nothing in the response to say why.
+
+If content is missing and the resources answer `200`, check which roles hold
+the permission before anything else:
+
+```sh
+drush role:list --filter='access druxt resources'
+```
 
 ## Features
 
