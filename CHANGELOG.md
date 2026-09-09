@@ -21,10 +21,11 @@ Versions are the project's git tags. Some are tag only and have no
 
 - Preflighted cross-origin requests are no longer refused. Druxt enabled CORS
   without setting `allowedMethods`, so the preflight allowed no method and the
-  browser dropped the request. Anonymous reads worked, and every write and
-  every authenticated read failed. The default is now `['*']`, matching the
+  browser dropped the request. Anonymous reads worked, and every JSON:API write
+  and every authenticated read failed. The default is now `['*']`, matching the
   existing `allowedHeaders` default. A site that has set `cors.config.enabled`
-  itself is unaffected, before and after.
+  to `TRUE` itself is unaffected, before and after. Setting it to `FALSE` does
+  not exempt a site: Druxt has always turned CORS on where it was off.
 
 ## [1.2.2] - 2026-09-05
 
