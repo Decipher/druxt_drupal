@@ -70,9 +70,13 @@ DruxtJS requires a Nuxt.js frontend and a Drupal JSON:API backend.
 
 ## Configuration
 
-Once installed, DruxtJS does not need configuring. The "**access
-druxt resources**" permission provides read-only access to all JSON:API
-resources required by the DruxtJS frontend.
+The Drupal module runs on its defaults. Grant the "**access druxt resources**"
+permission to a role and it provides read-only access to all JSON:API resources
+required by the DruxtJS frontend.
+
+Choose which resources those are at Administration > Configuration > Web
+services > Druxt. The sections below say when a site needs to change that list
+or the CORS defaults.
 
 
 ## Features
