@@ -141,3 +141,16 @@ function druxt_update_9000(): void {
 function druxt_update_10301(): void {
   \Drupal::service('config.installer')->installDefaultConfig('module', 'druxt');
 }
+
+/**
+ * Expose base field overrides, so a frontend reads a bundle's own base field labels.
+ */
+function druxt_update_10302(): void {
+  $config = \Drupal::configFactory()->getEditable('druxt.settings');
+  $resources = $config->get('resources') ?? druxt_default_resources();
+  if (!in_array('base_field_override--base_field_override', $resources, TRUE)) {
+    $resources[] = 'base_field_override--base_field_override';
+    sort($resources);
+    $config->set('resources', $resources)->save();
+  }
+}

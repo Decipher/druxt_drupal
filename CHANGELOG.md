@@ -10,6 +10,13 @@ Versions are the project's git tags. Some are tag only and have no
 
 ## [Unreleased]
 
+### Added
+
+- `base_field_override--base_field_override` is exposed by default, so a
+  frontend reads a bundle's own label, description and required flag for a
+  base field, such as a recipe's "Recipe Name" for its title. The update adds
+  it to a site's configured list when it is absent.
+
 ## [1.3.1] - 2026-09-09
 
 ### Fixed

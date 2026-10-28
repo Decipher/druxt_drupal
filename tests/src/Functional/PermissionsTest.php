@@ -44,6 +44,7 @@ class PermissionsTest extends BrowserTestBase {
    * @var array
    */
   protected $resources = [
+    'base_field_override--base_field_override',
     'block--block',
     'entity_form_display--entity_form_display',
     'entity_form_mode--entity_form_mode',
