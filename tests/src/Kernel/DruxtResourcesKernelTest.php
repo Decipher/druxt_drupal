@@ -218,12 +218,16 @@ class DruxtResourcesKernelTest extends KernelTestBase {
     $this->assertContains('menu_link_content--menu_link_content', $resources);
     $this->assertContains('view--view', $resources);
 
-    // Nothing is added to the default. Making the list configurable must not
-    // change what an existing site exposes. A site that wants more, such as
-    // editor--editor for a frontend that renders a text format's toolbar,
-    // chooses it.
+    // The two a frontend needs to render what Drupal intended and 1.3.0
+    // left out: a bundle's own base field labels, and the moderation
+    // widget's states and transitions. Both configuration entities.
+    $this->assertContains('base_field_override--base_field_override', $resources);
+    $this->assertContains('workflow--workflow', $resources);
+
+    // Nothing else is added. A site that wants more, such as editor--editor
+    // for a frontend that renders a text format's toolbar, chooses it.
     $this->assertNotContains('editor--editor', $resources);
-    $this->assertCount(12, $resources);
+    $this->assertCount(14, $resources);
   }
 
   /**

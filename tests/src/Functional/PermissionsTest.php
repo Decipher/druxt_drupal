@@ -54,6 +54,7 @@ class PermissionsTest extends BrowserTestBase {
     'field_storage_config--field_storage_config',
     'menu_link_content--menu_link_content',
     'view--view',
+    'workflow--workflow',
   ];
 
   /**

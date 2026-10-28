@@ -143,13 +143,23 @@ function druxt_update_10301(): void {
 }
 
 /**
- * Expose base field overrides, so a frontend reads a bundle's own base field labels.
+ * Expose base field overrides and workflows to the frontend.
+ *
+ * A bundle's own base field labels live in base_field_override, and the
+ * moderation widget's states and transitions in workflow. Both join a site's
+ * configured list when absent.
  */
 function druxt_update_10302(): void {
   $config = \Drupal::configFactory()->getEditable('druxt.settings');
   $resources = $config->get('resources') ?? druxt_default_resources();
-  if (!in_array('base_field_override--base_field_override', $resources, TRUE)) {
-    $resources[] = 'base_field_override--base_field_override';
+  $added = FALSE;
+  foreach (['base_field_override--base_field_override', 'workflow--workflow'] as $resource) {
+    if (!in_array($resource, $resources, TRUE)) {
+      $resources[] = $resource;
+      $added = TRUE;
+    }
+  }
+  if ($added) {
     sort($resources);
     $config->set('resources', $resources)->save();
   }
