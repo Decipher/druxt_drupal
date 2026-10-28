@@ -31,6 +31,9 @@ class PermissionsTest extends BrowserTestBase {
     'menu_link_content',
     'node',
     'views',
+    // A test dependency only: the workflow resource joins the defaults when
+    // the module is installed, and the test reads every default.
+    'workflows',
   ];
 
   /**
