@@ -238,6 +238,8 @@ class DruxtResourcesKernelTest extends KernelTestBase {
    * configured list, and uninstalling it takes them out again.
    */
   public function testWorkflowResourceFollowsTheWorkflowsModule(): void {
+    // Uninstalling a module clears its users' data, which needs the table.
+    $this->installSchema('user', ['users_data']);
     $this->assertNotContains('workflow--workflow', druxt_default_resources());
 
     $this->container->get('module_installer')->install(['workflows']);
