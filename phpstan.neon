@@ -38,11 +38,11 @@ parameters:
       reportUnmatched: false
 
     -
-      # BrowserTestBase::createUser() returns UserInterface|false, but always
-      # succeeds in test contexts.
+      # BrowserTestBase::createUser() returns UserInterface|false, or User|false
+      # on Drupal 10, but always succeeds in test contexts.
       messages:
         - '#does not accept Drupal\\user\\UserInterface\|false#'
-        - '#expects Drupal\\Core\\Session\\AccountInterface, Drupal\\user\\UserInterface\|false given#'
+        - '#expects Drupal\\Core\\Session\\AccountInterface, Drupal\\user\\(UserInterface|Entity\\User)\|false given#'
 
     -
       # PHP resolves attribute classes lazily and PHPUnit 9.6 reads doc-comment
