@@ -17,6 +17,7 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
+use DrupalRector\Rector\Deprecation\ConstantToClassConstantRector;
 use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
@@ -37,7 +38,9 @@ use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRecto
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
+use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
+use Rector\ValueObject\PhpVersion;
 
 // Rector and its embedded PHPStan cache reflection data that records
 // absolute paths into the PHPStan PHAR. The default cache directories are
@@ -56,6 +59,11 @@ return RectorConfig::configure()
     // resolved for Drupal 10 builds and warns that the entry is unused on
     // newer ones, so it stays listed to cover both.
     AddOverrideAttributeToOverriddenMethodsRector::class,
+    // These rewrite the fallback for an older core in a
+    // DeprecationHelper::backwardsCompatibleCall() to the newer core's class,
+    // which an older core does not have.
+    AddArrowFunctionReturnTypeRector::class,
+    ConstantToClassConstantRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CompleteDynamicPropertiesRector::class,
@@ -76,9 +84,11 @@ return RectorConfig::configure()
     // Directories to skip.
     '*/node_modules/*',
   ])
-  // PHP version upgrade sets - modernizes syntax to PHP 8.3.
-  // Includes all rules from PHP 5.3 through 8.3.
-  ->withPhpSets(php83: TRUE)
+  // PHP version upgrade sets - modernizes syntax to PHP 8.2, because Drupal 10
+  // and 11 sites can still run this module on it.
+  // Includes all rules from PHP 5.3 through 8.2.
+  ->withPhpSets(php82: TRUE)
+  ->withPhpVersion(PhpVersion::PHP_82)
   // Code quality improvement sets.
   ->withPreparedSets(
     deadCode: TRUE,
