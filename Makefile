@@ -34,10 +34,6 @@ SIMPLETEST_BASE_URL = http://$(or $(WEBSERVER_HOST),localhost):$(or $(WEBSERVER_
 SIMPLETEST_DB = sqlite://localhost/drupal_test_$(EXTENSION_NAME).sqlite
 BROWSERTEST_OUTPUT_DIRECTORY = $(CURDIR)/.logs/browser_output
 
-# When scripts/start-cloudflared.sh has written a TUNNEL_URL to .env,
-# point `make drush`/`make login` at the public tunnel instead of localhost.
-DRUSH_URI := $(if $(TUNNEL_URL),$(TUNNEL_URL),http://$(WEBSERVER_HOST):$(WEBSERVER_PORT))
-
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef

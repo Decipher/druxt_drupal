@@ -48,8 +48,13 @@ use Rector\ValueObject\PhpVersion;
 // longer exists break the next run. A cache inside the build is scoped to a
 // single codebase. PHPStan requires the directory to exist before it boots.
 $cache_dir = __DIR__ . '/.rector';
-if (!is_dir($cache_dir)) {
-  mkdir($cache_dir, 0755, TRUE);
+// The option --clear-cache deletes the file cache directory, so the container
+// cache needs its own directory.
+$container_cache_dir = __DIR__ . '/.rector-container';
+foreach ([$cache_dir, $container_cache_dir] as $directory) {
+  if (!is_dir($directory)) {
+    mkdir($directory, 0755, TRUE);
+  }
 }
 
 return RectorConfig::configure()
@@ -140,6 +145,6 @@ return RectorConfig::configure()
     'engine',
   ])
   // Cache configuration.
-  ->withCache(cacheDirectory: $cache_dir, containerCacheDirectory: $cache_dir)
+  ->withCache(cacheDirectory: $cache_dir, containerCacheDirectory: $container_cache_dir)
   // Import configuration.
   ->withImportNames(importNames: TRUE, importDocBlockNames: FALSE, importShortClasses: FALSE);
