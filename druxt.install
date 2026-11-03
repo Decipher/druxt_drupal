@@ -103,6 +103,7 @@ function druxt_requirements(string $phase): array {
           '#theme' => 'item_list',
           '#items' => $missing_resources,
         ],
+        // @phpstan-ignore class.notFound, class.notFound (Only core 11.2 and later have this class. DeprecationHelper does not call it on an older core.)
         'severity' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.2.0', fn(): RequirementSeverity => RequirementSeverity::Warning, fn() => REQUIREMENT_WARNING),
       ];
     }
@@ -120,6 +121,7 @@ function druxt_requirements(string $phase): array {
           '#theme' => 'item_list',
           '#items' => $disabled_resources,
         ],
+        // @phpstan-ignore class.notFound, class.notFound (Only core 11.2 and later have this class. DeprecationHelper does not call it on an older core.)
         'severity' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.2.0', fn(): RequirementSeverity => RequirementSeverity::Warning, fn() => REQUIREMENT_WARNING),
       ];
     }
