@@ -7,9 +7,8 @@ on:
     branches:
       # Every Drupal minor branch, so a new one does not need a workflow edit.
       - '*.x'
+  # No branch filter, so a pull request stacked on another branch is tested too.
   pull_request:
-    branches:
-      - '*.x'
 
 permissions:
   contents: read
