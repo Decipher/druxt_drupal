@@ -203,6 +203,7 @@ function druxt_jsonapi_entity_filter_access(EntityTypeInterface $entity_type, Ac
     return NULL;
   }
 
+  // @phpstan-ignore class.notFound (Only core 11.3 and later have this class. DeprecationHelper does not call it on an older core.)
   $jsonapi_filter = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn(): string => JsonApiFilter::AMONG_ALL, fn() => JSONAPI_FILTER_AMONG_ALL);
   return [
     $jsonapi_filter => AccessResult::allowed()
